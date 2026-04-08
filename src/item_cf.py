@@ -1,7 +1,7 @@
 import numpy as np 
 
 class ItemBasedCF:
-    def __init__(self, k=5):
+    def __init__(self, k=20):
         self.k = k
         self.rating_matrix = None
         self.mask = None
@@ -109,16 +109,3 @@ def normalize_matrix(data, mask):
     normalized = np.where(mask, data - user_mean, 0)
 
     return normalized, user_mean
-
-# if __name__ == "__main__":
-#     data = np.array([[7, 6, 7, 4, 5, 4],
-#                     [6, 7, 0, 4, 3, 4],
-#                     [0, 3, 3, 1, 1, 0],
-#                     [1, 2, 2, 3, 3, 4],
-#                     [1, 0, 1, 2, 3, 3]])
-    
-#     data_mask, norm_data = normalize_matrix(data)
-#     recommender = ItemBasedCF(norm_data, data_mask)
-#     sim = recommender.similarity_matrix
-#     print(sim)
-            
