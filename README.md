@@ -1,17 +1,42 @@
-# movie-recommender-system
+# 🎬 Building a Recommender System from Scratch
 
-## Git helper
+This project focuses on implementing recommender systems using multiple approaches and deploying a real-time recommendation system.
 
-Use `git_sync.py` to stage, commit, and optionally push changes.
+---
 
-Example:
+## 📊 Dataset
+- **MovieLens-1M**  
+  https://grouplens.org/datasets/movielens/1m/
 
-    python git_sync.py --all -m "Update recommendation logic" --push
+---
 
-Use `--files` to stage only specific files:
+## 🚀 Stage 1: Basic Recommender Algorithms
 
-    python git_sync.py --files src/predictor.py README.md -m "Fix predictor doc" --push
+Implemented models:
+- Item-based Collaborative Filtering
+- SVD for representation learning
+- SVD for user–item latent factorization
 
-Use `--dry-run` to preview commands without applying changes:
+---
 
-    python git_sync.py --all -m "Test" --dry-run
+## 📈 Evaluation Metrics
+Models are evaluated using:
+- **RMSE** (rating prediction)
+- **Precision@K** (ranking quality)
+
+---
+
+## 🧪 Results
+
+| Model | RMSE | Precision@5 |
+|------|------|------------|
+| Custom SVD | 0.89 | 0.0555 |
+| Surprise SVD | 0.87 | 0.0672 |
+
+---
+
+## 📝 Notes
+- The custom SVD implementation is competitive but still slightly behind the optimized implementation from the Surprise library.
+- Further improvements may include hyperparameter tuning, regularization, and advanced models.
+
+---
