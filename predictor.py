@@ -7,8 +7,8 @@ from data.loader import build_eval_dict
 from model_factory import get_model
 
 def main():
-    data_path = "../data/ml-1m/ratings.dat"
-    model_name = "svd_model"
+    data_path = "/data/ml-1m/ml-1m/ratings.dat"
+    model_name = "surprise_svd"
     model = get_model(model_name)
 
     df = pd.read_csv(data_path, 
