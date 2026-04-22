@@ -43,7 +43,7 @@ def train_test_split(ratings, test_ratio=0.2, seed=42):
     return train_data, test_data
 
 # Divide ratings into two sets in the form of list of tuples 
-# The test data is drawn using leave-one-out and negative sampling method from each user:
+# The test data is drawn, keeping only relevant items
 # - A rating >= 4 (relevant item)
 # - 100 ratings that have not been seen (implicit negatives)
 def build_eval_dict(ratings):
@@ -60,17 +60,20 @@ def build_eval_dict(ratings):
     for user, user_ratings in ratings_of_users.items():
         positives = [x for x in user_ratings if x[2] >= 4]
 
-        if len(positives) == 0:
+        if len(positives) < 2:
             continue 
             
-        test = random.choice(positives)
-        train = [x for x in user_ratings if x != test]
+        test_size = max(1, int(0.2 * len(positives)))
+        test = random.sample(positives, test_size)
+        train = [x for x in user_ratings if x not in test]
 
         for u, i, r in train:
-            train_dict_eval[u].append(i)
+            train_dict_eval[u].append((i, r))
         
-        u, i, r = test
-        test_dict_eval[u].append(i)
+        # u, i, r = test
+        # test_dict_eval[u].append((i, r))
+        for u, i, r in test:
+            test_dict_eval[u].append((i, r))
     
     return train_dict_eval, test_dict_eval, all_items
 

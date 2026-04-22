@@ -86,20 +86,14 @@ class ItemBasedCF:
 
         return numerator / denominator
 
-    def recommend(self, user, n_items=10):
-        rated_items = self.mask[user]
-        unrated_items = np.where(~rated_items)[0]
-
-        predictions = []
-        for item in unrated_items:
-            pred = self.predict(user, item)
-            predictions.append((item, pred))
-        
-        predictions.sort(key=lambda x: x[1], reverse=True)
-        
-        top_items = [item for item, _ in predictions[:n_items]]
-
-        return top_items
+    def recommend(self, user_id, k, exclude_items=None):
+        # score all items
+        scores = {
+            i: self.model.predict(user_id, i)
+            for i in self.all_items
+            if i not in exclude_items
+        }
+        return sorted(scores, key=scores.get, reverse=True)[:k]
         
 def normalize_matrix(data, mask):
     user_mean = np.sum(data * mask, axis=1) / np.sum(mask, axis=1)

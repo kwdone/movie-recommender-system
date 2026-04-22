@@ -15,3 +15,12 @@ class SurpriseSVDWrapper:
 
     def predict(self, user, item):
         return self.model.predict(user, item).est
+    
+    def recommend(self, user_id, k, exclude_items=None):
+        # score all items
+        scores = {
+            i: self.model.predict(user_id, i)
+            for i in self.all_items
+            if i not in exclude_items
+        }
+        return sorted(scores, key=scores.get, reverse=True)[:k]

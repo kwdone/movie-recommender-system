@@ -45,3 +45,5 @@ data/*
 # Environment variables (IMPORTANT)
 # =========================
 .env
+
+src/

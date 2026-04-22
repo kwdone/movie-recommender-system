@@ -77,21 +77,15 @@ class SVDRecommender:
     def predict(self, user, item):
         return self.user_embed[user] @ self.item_embed[item]
 
-    def recommend(self, user, n_items=10):
-        rated_items = self.mask[user]
-        unrated_items = np.where(~rated_items)[0]
-
-        predictions = []
-        for item in unrated_items:
-            pred = self.predict(user, item)
-            predictions.append((item, pred))
-        
-        predictions.sort(key=lambda x: x[1], reverse=True)
-        
-        top_items = [item for item, _ in predictions[:n_items]]
-
-        return top_items
-
+    def recommend(self, user_id, k, exclude_items=None):
+        # score all items
+        scores = {
+            i: self.model.predict(user_id, i)
+            for i in self.all_items
+            if i not in exclude_items
+        }
+        return sorted(scores, key=scores.get, reverse=True)[:k]
+    
 def normalize_matrix(data, mask):
     user_mean = np.sum(data * mask, axis=1) / np.sum(mask, axis=1)
 
@@ -100,29 +94,3 @@ def normalize_matrix(data, mask):
     normalized = np.where(mask, data - user_mean, 0)
 
     return normalized, user_mean
-
-
-if __name__ == "__main__":
-    ratings = pd.read_csv("data/ml-1m/ratings.dat",
-                          sep="::",
-                          engine="python",
-                          names=["user_id", "movie_id", "rating", "timestamp"])
-    
-    ratings = ratings.drop("timestamp", axis=1)
-    R = ratings.pivot(index="user_id", columns="movie_id", values="rating").fillna(0)
-
-    R = R.to_numpy()
-
-    print(R.shape)
-
-    U, S, Vt = np.linalg.svd(R)
-    print(U.shape)
-    print(S.shape)
-    print(Vt.shape)
-    print(S[:10])
-    U = U[:, :50] # Slicing the first 50 columns
-    S = S[:50]
-    Vt = Vt[:50, :]
-    embed_matrix = Vt.T * S
-    print(f"Embedding matrix shape: {embed_matrix.shape}")
-    print(embed_matrix[:10, :])

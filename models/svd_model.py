@@ -3,7 +3,6 @@ import pandas as pd
 import random 
 from collections import defaultdict
 from tqdm import tqdm
-from evaluation.metrics import precision_at_k
 
 class SVDModel:
     def __init__(self):
@@ -21,7 +20,7 @@ class SVDModel:
         self.lr = 7e-3
         self._lambda = 5e-3
         self._beta = 15e-3
-        self.num_epochs = 15
+        self.num_epochs = 20
 
     def fit(self, train_data):
         self.ratings = train_data 
@@ -77,5 +76,11 @@ class SVDModel:
     def predict(self, user, item):  
         return self.m_u + self.bi[item] + self.bu[user] + np.dot(self.Q[item].T, self.P[user])
 
-    def recommend(self, user, n_items=10):
-        return None
+    def recommend(self, user_id, k, exclude_items=None):
+        # score all items
+        scores = {
+            i: self.model.predict(user_id, i)
+            for i in self.all_items
+            if i not in exclude_items
+        }
+        return sorted(scores, key=scores.get, reverse=True)[:k]

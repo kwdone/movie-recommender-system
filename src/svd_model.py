@@ -51,61 +51,13 @@ class SVDModel:
     def predict(self, user, item):  
         return self.m_u + self.bi[item] + self.bu[user] + np.dot(self.Q[item].T, self.P[user])
 
-    def recommend(self, user, n_items=10):
-        return None
-
-if __name__ == "__main__":
-    df = pd.read_csv("../data/ml-1m/ratings.dat",
-                          sep="::",
-                          engine="python",
-                          names=["user_id", "movie_id", "rating", "timestamp"])
-    
-    df = df.drop("timestamp", axis=1)
-    print(len(df["movie_id"].unique()))
-
-    ratings = list(df.itertuples(index=False, name=None))
-    all_items = set(df["movie_id"])
-
-    ratings_of_users = defaultdict(list)
-    for u, i, r in ratings:
-        ratings_of_users[u].append((u, i, r))
-
-    train_data = []
-    train_dict_eval = defaultdict(list)
-    test_data = []
-    test_dict_eval = defaultdict(list)
-
-    for user, ratings in ratings_of_users.items():
-        random.shuffle(ratings)
-
-        test = ratings[0]
-        train = ratings[1:]
-
-        test_data.append(test)
-        train_data.extend(train)
-
-        for u,i,r in train:
-            train_dict_eval[u].append(i)
-
-        u,i,r = test
-        if r >= 4:
-            test_dict_eval[u].append(i)
-
-    model = SVDModel()
-    model.fit(train_data)
-
-errors = []
-
-print(f"The size of test set: {len(test_dict_eval)}")
-for (u, i, r) in test_data:
-    pred = model.predict(u, i)
-    errors.append((pred - r) ** 2)
-
-rmse = np.sqrt(np.mean(errors))
-
-print(f"Test RMSE: {rmse}")
-
-precisionK = precision_at_k(model, test_dict_eval, train_dict_eval, all_items, 5)
-print(f"Precision@K: {precisionK}")
+    def recommend(self, user_id, k, exclude_items=None):
+        # score all items
+        scores = {
+            i: self.model.predict(user_id, i)
+            for i in self.all_items
+            if i not in exclude_items
+        }
+        return sorted(scores, key=scores.get, reverse=True)[:k]
 
         
