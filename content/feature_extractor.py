@@ -23,8 +23,8 @@ class ContentAnalyzer:
         self.writer_map = pd.read_csv(writer_vocab_path)
 
         # Collection of features
-        self.tf_idf = None  # Shape (n_items, vocab_size) # CACHED 
-        self.movie_genres = None # Shape (n_items, n_genres (20)) # CACHED
+        self.tf_idf = None  # Shape (n_items, vocab_size) 
+        self.movie_genres = None # Shape (n_items, n_genres (20)) 
         self.actor_encoding = None
         self.writer_encoding = None
         self.director_encoding = None
@@ -52,6 +52,7 @@ class ContentAnalyzer:
         self.user_id_to_row = {}
         self.row_to_user_id = {}
 
+        # Hyperparameters for feature concatenation chosen using Optuna
         self.w_genres = w_genres 
         self.w_tfidf = w_tfidf
         self.w_actors = w_actor
