@@ -12,9 +12,9 @@ MODEL_REGISTRY = {
     "content_based": {"class": ContentAnalyzer, "type": "cb"}
 }
 
-def get_model(model_name):
+def get_model(model_name, **kwargs):
     if model_name not in MODEL_REGISTRY:
         raise ValueError(f"Unknown model: {model_name}")
     
     entry = MODEL_REGISTRY[model_name]
-    return entry["class"](), entry["type"]
+    return entry["class"](**kwargs), entry["type"]

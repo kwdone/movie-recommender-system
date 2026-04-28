@@ -31,9 +31,21 @@ def evaluate_ranking(model, test_dict, train_dict, all_items, popular_items, k=5
 def main():
     data_path = "data/ml-1m/ml-1m/ratings.dat"
     metadata_path = "data/movielens_metadata.csv"
+    genre_path = "data/genres.csv"
+    cast_path = "data/cast_and_crew.csv"
+    actor_vocab_path = "data/actor_vocabulary.csv"
+    director_vocab_path = "data/director_vocabulary.csv"
+    writer_vocab_path = "data/writer_vocabulary.csv"
 
-    model_name = "svd_model"
-    model, model_type = get_model(model_name)
+    model_name = "content_based"
+    if model_name == "content_based":
+        model, model_type = get_model(model_name, 
+                                      genre_path=genre_path,
+                                      actor_vocab_path=actor_vocab_path,
+                                      director_vocab_path=director_vocab_path,
+                                      writer_vocab_path=writer_vocab_path)
+    else:
+        model, model_type = get_model(model_name)
 
     df = pd.read_csv(data_path, 
                      sep="::",
@@ -43,8 +55,9 @@ def main():
     df = df.drop("timestamp", axis=1)
 
     metadata = pd.read_csv(metadata_path)
+    cast_metadata = pd.read_csv(cast_path)
 
-    metadata = metadata.dropna(subset=["overview"])
+    # metadata = metadata.dropna(subset=["overview"])
     all_items = metadata["movie_id"].tolist()
     popular_items = compute_popular_items_weighted(df, top_n=200)
 
@@ -77,7 +90,7 @@ def main():
             ]
 
             train_df = pd.DataFrame(flat_list, columns=["user_id", "movie_id", "rating"])
-            model.fit(train_df, metadata)
+            model.fit(train_df, metadata, cast_metadata)
             evaluate_ranking(model, test_dict_eval, train_dict_eval, all_items, popular_items)
             
 

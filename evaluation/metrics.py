@@ -18,10 +18,10 @@ def safe_sample(pool, n):
         return []
     return random.sample(pool, min(n, len(pool)))
 
-
 def get_scores(model, user, item):
     pred = model.predict(user, item)
     return pred.est if hasattr(pred, "est") else pred
+
 
 def rmse(y_true, y_pred):
     return np.sqrt(np.mean((np.array(y_true) - np.array(y_pred)) ** 2))
@@ -50,11 +50,16 @@ def measures_at_k(model, test_dict, train_dict, all_items, popular_items, k):
         candidates = list(candidates)
 
         # Score
-        scores = [
-            (item, score)
-            for item in candidates
-            if (score := get_scores(model, user, item)) is not None
-        ]
+        # scores = [
+        #     (item, score)
+        #     for item in candidates
+        #     if (score := get_scores(model, user, item)) is not None
+        # ]
+
+        if hasattr(model, "predict_many"):
+            scores = model.predict_many(user, candidates)
+        else:
+            scores = [(i, get_scores(model,user,i)) for i in candidates]
 
         scores.sort(key=lambda x: x[1], reverse=True)
 
@@ -92,11 +97,10 @@ def ndcg(model, test_dict, train_dict, all_items, popular_items, k=5):
         candidates = relevant_items | negatives | popular
         candidates = list(candidates)
 
-        scores = [
-            (item, score)
-            for item in candidates
-            if (score := get_scores(model, user, item)) is not None
-        ]
+        if hasattr(model, "predict_many"):
+            scores = model.predict_many(user, candidates)
+        else:
+            scores = [(i, get_scores(model,user,i)) for i in candidates]
 
         scores.sort(key=lambda x: x[1], reverse=True)
         recommended = [i for i, _ in scores[:k]]
